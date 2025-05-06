@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisar Bloco</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <h1>Condomínio - Pesquisar Bloco</h1>
+
+  <div class="toolbar">
+    <label for="busca-bloco">Pesquisa:</label>
+    <input type="text" id="busca-bloco" placeholder="Digite nome do bloco..." />
+    <button id="btn-novo-bloco">Novo Bloco</button>
+    <button id="btn-voltar">Voltar</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Descrição</th>
+        <th>Qtd Apartamentos</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-blocos">
+      <!-- Linhas serão inseridas aqui via JS -->
+    </tbody>
+  </table>
+
+  <script>
+    const BASE = 'http://localhost:3000';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabela = document.getElementById('tabela-blocos');
+      const inputBusca = document.getElementById('busca-bloco');
+      const btnNovo = document.getElementById('btn-novo-bloco');
+      const btnVoltar = document.getElementById('btn-voltar');
+      let blocos = [];
+
+      // Carrega e popula tabela
+      function carregarBlocos() {
+        fetch(`${BASE}/listar_blocos`)
+          .then(res => res.json())
+          .then(data => {
+            blocos = data;
+            renderizarTabela(blocos);
+          })
+          .catch(err => alert('Erro ao carregar blocos: ' + err.message));
+      }
+
+      // Renderiza linhas baseado em array
+      function renderizarTabela(lista) {
+        tabela.innerHTML = '';
+        if (lista.length === 0) {
+          tabela.innerHTML = '<tr><td colspan="3">Nenhum bloco cadastrado.</td></tr>';
+          return;
+        }
+        lista.forEach(bloco => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-action="consultar" data-id="${bloco.id}">${bloco.nome}</td>
+            <td>${bloco.qtd_apartamentos || '-'}</td>
+            <td>
+              <button data-action="alterar" data-id="${bloco.id}">Alterar</button>
+              <button data-action="excluir" data-id="${bloco.id}">Excluir</button>
+            </td>
+          `;
+          tabela.appendChild(tr);
+        });
+      }
+
+      // Filtra tabela on input
+      inputBusca.addEventListener('input', () => {
+        const termo = inputBusca.value.toLowerCase();
+        const filtrados = blocos.filter(b => b.nome.toLowerCase().includes(termo));
+        renderizarTabela(filtrados);
+      });
+
+      // Eventos de ações na tabela
+      tabela.addEventListener('click', e => {
+        const btn = e.target;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (action === 'alterar') {
+          window.location.href = `blocos.html?modo=alterar&id=${id}`;
+        } else if (action === 'excluir') {
+          if (confirm('Deseja excluir este bloco?')) {
+            fetch(`${BASE}/excluir_blocos/${id}`, { method: 'DELETE' })
+              .then(res => res.json())
+              .then(() => carregarBlocos());
+          }
+        } else if (action === 'consultar') {
+          window.location.href = `blocos.html?modo=consultar&id=${id}`;
+        }
+      });
+
+      btnNovo.addEventListener('click', () => {
+        window.location.href = 'blocos.html?modo=novo';
+      });
+
+      btnVoltar.addEventListener('click', () => history.back());
+
+      carregarBlocos();
+    });
+  </script>
+</body>
+</html>

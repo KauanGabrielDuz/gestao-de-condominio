@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Apartamentos</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <h1>Cadastro de Apartamentos</h1>
+
+  <form id="form-apartamento">
+    <div>
+      <label for="numero-apartamento">Número do Apartamento:</label>
+      <input type="text" id="numero-apartamento" name="numero" required />
+    </div>
+
+    <div>
+      <label for="bloco-apartamento">Bloco:</label>
+      <select id="bloco-apartamento" name="blocoId" required>
+        <option value="">Selecione um bloco</option>
+      </select>
+    </div>
+
+    <button type="submit">Cadastrar Apartamento</button>
+  </form>
+
+  <button onclick="window.location.href='../index.html'">Voltar para o Início</button>
+
+  <!-- Inclui o script específico de apartamentos -->
+     <script src="../js/apartamentos.js"></script>
+</body>
+</html>
