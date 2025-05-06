@@ -48,6 +48,49 @@ app.post('/cadastrar_blocos', (req, res) => {
   });
 });
 
+// Listar todos os moradores
+app.get('/listar_moradores', (req, res) => {
+  conexao.query('SELECT * FROM moradores', (err, result) => {
+    if (err) res.status(500).send(err);
+    else res.json(result);
+  });
+});
+
+// Obter um morador específico
+app.get('/moradores/:id', (req, res) => {
+  conexao.query('SELECT * FROM moradores WHERE id = ?', [req.params.id], (err, result) => {
+    if (err) res.status(500).send(err);
+    else res.json(result[0]);
+  });
+});
+
+// Cadastrar morador
+app.post('/cadastrar_moradores', (req, res) => {
+  const { nome, cpf, apartamento_id } = req.body;
+  conexao.query('INSERT INTO moradores (nome, cpf, apartamento_id) VALUES (?, ?, ?)', [nome, cpf, apartamento_id], (err, result) => {
+    if (err) res.status(500).send(err);
+    else res.status(201).json({ id: result.insertId });
+  });
+});
+
+// Atualizar morador
+app.put('/atualizar_moradores/:id', (req, res) => {
+  const { nome, cpf, apartamento_id } = req.body;
+  conexao.query('UPDATE moradores SET nome = ?, cpf = ?, apartamento_id = ? WHERE id = ?', [nome, cpf, apartamento_id, req.params.id], (err) => {
+    if (err) res.status(500).send(err);
+    else res.sendStatus(204);
+  });
+});
+
+// Excluir morador
+app.delete('/excluir_moradores/:id', (req, res) => {
+  conexao.query('DELETE FROM moradores WHERE id = ?', [req.params.id], (err) => {
+    if (err) res.status(500).send(err);
+    else res.sendStatus(204);
+  });
+});
+
+
 // Rota para listar_blocos
 // Rota para listar_blocos
 app.get('/listar_blocos', (req, res) => {

@@ -1,56 +1,91 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('form-apartamento');
   const selectBlocos = document.getElementById('bloco-apartamento');
+  const btnCadastrar = document.getElementById('btn-cadastrar');
+  const titulo = document.getElementById('titulo-apartamento');
 
-  // Carrega lista de blocos para o <select>
-  function carregarBlocos() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const modo = urlParams.get('modo') || 'novo';
+  const id = urlParams.get('id');
+
+  function carregarBlocosSelecionado(selecionadoId = '') {
     fetch('http://localhost:3000/listar_blocos')
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
+        selectBlocos.innerHTML = '<option value="">Selecione um bloco</option>';
         data.forEach(bloco => {
           const option = document.createElement('option');
           option.value = bloco.id;
           option.textContent = bloco.nome;
+          if (bloco.id == selecionadoId) option.selected = true;
           selectBlocos.appendChild(option);
         });
       })
-      .catch(error => {
-        console.error('Erro ao carregar blocos:', error);
-        alert('Não foi possível carregar a lista de blocos.');
+      .catch(err => {
+        alert('Erro ao carregar blocos');
+        console.error(err);
       });
   }
 
-  carregarBlocos();
+  if (modo === 'alterar' || modo === 'consultar') {
+    fetch(`http://localhost:3000/consultar_apartamentos/${id}`)
+      .then(res => res.json())
+      .then(ap => {
+        document.getElementById('numero-apartamento').value = ap.numero;
+        carregarBlocosSelecionado(ap.blocoId);
+        if (modo === 'consultar') {
+          form.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = true);
+          titulo.textContent = 'Consulta de Apartamento';
+        } else {
+          titulo.textContent = 'Alterar Apartamento';
+        }
+      })
+      .catch(err => {
+        alert('Erro ao carregar apartamento');
+        console.error(err);
+      });
+  } else {
+    carregarBlocosSelecionado();
+  }
 
-  // Trata o envio do formulário de cadastro de apartamento
-  form.addEventListener('submit', event => {
-    event.preventDefault();
+  form.addEventListener('submit', e => {
+    e.preventDefault();
 
     const numero = document.getElementById('numero-apartamento').value.trim();
     const blocoId = selectBlocos.value;
 
     if (!numero || !blocoId) {
-      alert('Por favor, preencha todos os campos.');
+      alert('Preencha todos os campos!');
       return;
     }
 
-    fetch('http://localhost:3000/cadastrar_apartamentos', {
-      method: 'POST',
+    const body = JSON.stringify({ numero, blocoId });
+
+    let url = 'http://localhost:3000/cadastrar_apartamentos';
+    let method = 'POST';
+
+    if (modo === 'alterar') {
+      url = `http://localhost:3000/atualizar_apartamentos/${id}`;
+      method = 'PUT';
+    }
+
+    fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ numero, blocoId })
+      body
     })
-      .then(response => response.json())
+      .then(res => res.json())
       .then(result => {
         if (result.status === 'success') {
-          alert(`Apartamento cadastrado com sucesso! ID: ${result.apartamentoId}`);
-          form.reset();
+          alert(modo === 'alterar' ? 'Apartamento atualizado com sucesso!' : 'Apartamento cadastrado!');
+          window.location.href = 'listar_apartamentos.html';
         } else {
-          alert(`Erro ao cadastrar apartamento: ${result.message}`);
+          alert(`Erro: ${result.message}`);
         }
       })
-      .catch(error => {
-        console.error('Erro na conexão:', error);
-        alert('Não foi possível conectar ao servidor.');
+      .catch(err => {
+        alert('Erro na requisição');
+        console.error(err);
       });
   });
 });
