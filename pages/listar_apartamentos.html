@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Listar Apartamentos</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <h1>Lista de Apartamentos</h1>
+
+  <input type="text" id="pesquisa-apartamento" placeholder="Pesquisar por número ou bloco">
+
+  <button onclick="window.location.href='apartamentos.html?modo=novo'">Novo Apartamento</button>
+  <button onclick="window.location.href='../index.html'">Voltar</button>
+
+  <table id="tabela-apartamentos" border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Número</th>
+        <th>Bloco</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Linhas serão inseridas via JavaScript -->
+    </tbody>
+  </table>
+
+  <script src="../js/listar_apartamentos.js"></script>
+</body>
+</html>
