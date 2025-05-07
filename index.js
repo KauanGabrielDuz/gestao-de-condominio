@@ -113,6 +113,7 @@ app.get('/listar_blocos', (req, res) => {
   });
 });
 
+//teste 1234
 
 // Rota GET para obter dados de um bloco específico
 app.get('/blocos/:id', (req, res) => {
